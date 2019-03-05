@@ -145,7 +145,7 @@ Response Properties:
 
 #### fetch recording url
 
-- `http://localhost:3000/recorder/v1/stop`
+- `http://localhost:3000/fetch
 
 Method:
 
