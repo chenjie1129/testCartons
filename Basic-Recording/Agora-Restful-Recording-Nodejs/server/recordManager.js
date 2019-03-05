@@ -30,28 +30,149 @@ class RecordManager{
         })
     }
 
-    start(key, appid, channel) {
+//    start(key, appid, channel) {
+//        return new Promise((resolve, reject) => {
+//            const sid = uuidv4();
+//            this.initStorage(appid, channel, sid).then(storagePath => {
+//                let sdk = new AgoraRecordingSDK();
+//
+//                let layout = {
+//                    "canvasWidth": 1280,
+//                    "canvasHeight": 720,
+//                    "backgroundColor": "#000000",
+//                    "regions": []
+//                }
+//                let recorder = {
+//                    appid: appid,
+//                    channel: channel,
+//                    sdk: sdk,
+//                    sid: sid,
+//                    layout: layout
+//                };
+//                sdk.setMixLayout(layout);
+//
+//                sdk.joinChannel(key || null, channel, 0, appid, storagePath).then(() => {
+//                    this.subscribeEvents(recorder);
+//                    this.recorders[sid] = recorder;
+//                    console.log(`recorder started ${appid} ${channel} ${sid}`)
+//                    resolve(recorder);
+//                }).catch(e => {
+//                    reject(e);
+//                });
+//            });
+//        });
+//    }
+//
+//    subscribeEvents(recorder) {
+//        let { sdk, sid, appid, channel } = recorder;
+//        sdk.on("error", (err, stat) => {
+//            console.error(`sdk stopped due to err code: ${err} stat: ${stat}`);
+//            console.log(`stop recorder ${appid} ${channel} ${sid}`)
+//            //clear recorder if error received
+//            this.onCleanup(sid)
+//        });
+//        sdk.on("userleave", (uid) => {
+//            console.log(`user leave ${uid}`);
+//            //rearrange layout when user leaves
+//
+//            let recorder = this.find(sid);
+//
+//            if(!recorder) {
+//                console.error("no reocrder found");
+//                return;
+//            }
+//            let {layout} = recorder;
+//            layout.regions = layout.regions.filter((region) => {
+//                return region.uid !== uid
+//            })
+//            sdk.setMixLayout(layout);
+//        });
+//        sdk.on("userjoin", (uid) => {
+//            //rearrange layout when new user joins
+//            console.log(`user join ${uid}`);
+//            let region = {
+//                "x": 0,
+//                "y": 0,
+//                "width": 1280,
+//                "height": 720,
+//                "zOrder": 1,
+//                "alpha": 1,
+//                "uid": uid
+//            }
+//            let recorder = this.find(sid);
+//
+//            if(!recorder) {
+//                console.error("no reocrder found");
+//                return;
+//            }
+//
+//            let {layout} = recorder;
+//            switch(layout.regions.length) {
+//                case 0:
+//                    region.x = 0;
+//                    region.y = 0;
+//                    break;
+//                case 1:
+//                    region.x = 1280;
+//                    region.y = 0;
+//                    break;
+//                case 2:
+//                    region.x = 0;
+//                    region.y = 720;
+//                    break;
+//                case 3:
+//                    region.x = 1280;
+//                    region.y = 720;
+//                default:
+//                    break;
+//            }
+//            layout.regions.push(region)
+//            sdk.setMixLayout(layout);
+//        });
+//    }
+
+   
+start(key, appid, channel,streamType) {
         return new Promise((resolve, reject) => {
             const sid = uuidv4();
             this.initStorage(appid, channel, sid).then(storagePath => {
                 let sdk = new AgoraRecordingSDK();
-
+                
                 let layout = {
-                    "canvasWidth": 1280,
-                    "canvasHeight": 720,
-                    "backgroundColor": "#000000",
-                    "regions": []
+                }
+                if (streamType == "0"){
+                    layout = {
+                        "canvasWidth": 720,
+                        "canvasHeight": 1280,
+                        "backgroundColor": "#000000",
+                        "regions": []
+                    }
+                } else if (streamType == "1") {
+                    layout = {
+                        "canvasWidth": 1280,
+                        "canvasHeight": 720,
+                        "backgroundColor": "#000000",
+                        "regions": []
+                    }
+                } else {
+                    layout = {
+                        "canvasWidth": 1280,
+                        "canvasHeight": 720,
+                        "backgroundColor": "#000000",
+                        "regions": []
+                    }
                 }
                 let recorder = {
                     appid: appid,
                     channel: channel,
                     sdk: sdk,
                     sid: sid,
-                    layout: layout
+                    layout: layout,
+                    streamType: streamType
                 };
                 sdk.setMixLayout(layout);
 
-                sdk.joinChannel(key || null, channel, 0, appid, storagePath).then(() => {
+                sdk.joinChannel(key || null, channel, 0, appid, storagePath,streamType).then(() => {
                     this.subscribeEvents(recorder);
                     this.recorders[sid] = recorder;
                     console.log(`recorder started ${appid} ${channel} ${sid}`)
@@ -63,8 +184,8 @@ class RecordManager{
         });
     }
 
-    subscribeEvents(recorder) {
-        let { sdk, sid, appid, channel } = recorder;
+ subscribeEvents(recorder) {
+        let { sdk, sid, appid, channel, streamType } = recorder;
         sdk.on("error", (err, stat) => {
             console.error(`sdk stopped due to err code: ${err} stat: ${stat}`);
             console.log(`stop recorder ${appid} ${channel} ${sid}`)
@@ -90,16 +211,18 @@ class RecordManager{
         sdk.on("userjoin", (uid) => {
             //rearrange layout when new user joins
             console.log(`user join ${uid}`);
-            let region = {
-                "x": 0,
-                "y": 0,
-                "width": 1280,
-                "height": 720,
-                "zOrder": 1,
-                "alpha": 1,
-                "uid": uid
-            }
-            let recorder = this.find(sid);
+                let region = {};
+            if (streamType == "0"){
+                region = {
+                    "x": 0,
+                    "y": 0,
+                    "width": 720,
+                    "height": 1280,
+                    "zOrder": 1,
+                    "alpha": 1,
+                    "uid": uid
+                }
+                let recorder = this.find(sid);
 
             if(!recorder) {
                 console.error("no reocrder found");
@@ -113,24 +236,103 @@ class RecordManager{
                     region.y = 0;
                     break;
                 case 1:
-                    region.x = 1280;
+                    region.x = 720;
                     region.y = 0;
                     break;
                 case 2:
                     region.x = 0;
-                    region.y = 720;
+                    region.y = 1280;
                     break;
                 case 3:
-                    region.x = 1280;
-                    region.y = 720;
+                    region.x = 720;
+                    region.y = 1280;
                 default:
                     break;
             }
             layout.regions.push(region)
             sdk.setMixLayout(layout);
+            } else if (streamType == "1") {
+                region = {
+                    "x": 0,
+                    "y": 0,
+                    "width": 1280,
+                    "height": 720,
+                    "zOrder": 1,
+                    "alpha": 1,
+                    "uid": uid
+                }
+                let recorder = this.find(sid);
+
+                if(!recorder) {
+                    console.error("no reocrder found");
+                    return;
+                }
+
+                let {layout} = recorder;
+                switch(layout.regions.length) {
+                    case 0:
+                        region.x = 0;
+                        region.y = 0;
+                        break;
+                    case 1:
+                        region.x = 1280;
+                        region.y = 0;
+                        break;
+                    case 2:
+                        region.x = 0;
+                        region.y = 720;
+                        break;
+                    case 3:
+                        region.x = 1280;
+                        region.y = 720;
+                    default:
+                        break;
+                }
+                layout.regions.push(region)
+                sdk.setMixLayout(layout);
+
+            } else {
+                region = {
+                    "x": 0,
+                    "y": 0,
+                    "width": 1280,
+                    "height": 720,
+                    "zOrder": 1,
+                    "alpha": 1,
+                    "uid": uid
+                }
+                let recorder = this.find(sid);
+
+                if(!recorder) {
+                    console.error("no reocrder found");
+                    return;
+                }
+
+                let {layout} = recorder;
+                switch(layout.regions.length) {
+                    case 0:
+                        region.x = 0;
+                        region.y = 0;
+                        break;
+                    case 1:
+                        region.x = 1280;
+                        region.y = 0;
+                        break;
+                    case 2:
+                        region.x = 0;
+                        region.y = 720;
+                        break;
+                    case 3:
+                        region.x = 1280;
+                        region.y = 720;
+                    default:
+                        break;
+                }
+                layout.regions.push(region)
+                sdk.setMixLayout(layout);
+            }
         });
     }
-
     stop(sid) {
         let recorder = this.recorders[sid];
         if(recorder) {

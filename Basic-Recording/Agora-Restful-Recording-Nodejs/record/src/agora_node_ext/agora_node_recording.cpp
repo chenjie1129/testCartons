@@ -75,7 +75,8 @@ namespace agora {
                 {"240x180", "240"},
                 {"180x180", "200"},
                 {"160x120", "120"},
-                {"120x120", "100"}
+                {"120x120", "100"},
+		{"720x1280","2401"}
             };
             LOG_LEAVE;
         }
@@ -88,7 +89,7 @@ namespace agora {
             do{
                 agora::recording::RecordingConfig config;
 
-                NodeString key, name, chan_info, applitDir, appid, cfgPath;
+                NodeString key, name, chan_info, applitDir, appid, cfgPath,streamType;
                 uid_t uid;
                 NodeRecordingSdk *pRecording = NULL;
                 napi_get_native_this(args, pRecording);
@@ -108,11 +109,14 @@ namespace agora {
                 CHECK_NAPI_STATUS(status);
                 status = napi_get_value_nodestring_(args[5], cfgPath);
                 CHECK_NAPI_STATUS(status);
+                status = napi_get_value_nodestring_(args[6], streamType);
+                CHECK_NAPI_STATUS(status);
                 string str_appid = (string)appid;
                 string str_name = (string)name;
                 string str_appliteDir = (string)applitDir;
                 string str_cfgPath = (string)cfgPath;
                 string str_key;
+		string str_streamType = (string)streamType;
 
                 if(key == nullptr) {
                     str_key = "";
@@ -129,8 +133,16 @@ namespace agora {
                 config.channelProfile = agora::linuxsdk::CHANNEL_PROFILE_LIVE_BROADCASTING;
                 // config.captureInterval = 1;
                 config.triggerMode = agora::linuxsdk::AUTOMATICALLY_MODE;
-                config.mixResolution = "1280,720,15,1200";
-
+		if (str_streamType == "0") {
+			config.mixResolution = "720,1280,15,1200";
+			cout << "portrait mode, 720*1280" << endl;
+		} else if (str_streamType == "1") {
+			config.mixResolution = "1280,720,15,1200";
+			cout << "landscape mode, 1280*720" << endl;
+		} else {
+                	cout << "defaultresolution" << endl;
+			config.mixResolution = "1280,720,15,1200";
+		}
                 agora::linuxsdk::VideoMixingLayout layout = pRecording->m_agorasdk->getMixLayout();
                 std::stringstream out;
                 out << layout.canvasWidth << "x" << layout.canvasHeight;

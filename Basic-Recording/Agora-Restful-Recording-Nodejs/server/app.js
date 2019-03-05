@@ -5,7 +5,7 @@ const RecordManager = require('./recordManager')
 const bodyParser = require('body-parser')
 const fs = require('fs');
 const path = require('path');
-const cors = require('cors')
+const cors = require('cors');
 //const timeout = require('connect-timeout')
 //app.all('*', function(req, res, next) {
    // res.header("Access-Control-Allow-Origin", "*");
@@ -20,17 +20,22 @@ app.use(cors());
 app.use(bodyParser.json());
 app.post('/recorder/v1/start', (req, res, next) => {
     let { body } = req;
-    let { appid, channel, key } = body;
+    let { appid, channel, key, streamType } = body;
+	var initStreamType = "0";
     if (!appid) {
         throw new Error("appid is mandatory");
     }
     if (!channel) {
         throw new Error("channel is mandatory");
     }
+	if (streamType){
+		initStreamType = streamType;	
+	}
 
-    RecordManager.start(key, appid, channel).then(recorder => {
+    RecordManager.start(key, appid, channel,initStreamType).then(recorder => {
         //start recorder success
-        res.status(200).json({
+        console.log(initStreamType);
+	res.status(200).json({
             success: true,
             sid: recorder.sid
         });
