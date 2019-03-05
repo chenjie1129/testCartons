@@ -96,7 +96,8 @@ namespace agora {
                 CHECK_NATIVE_THIS(pRecording);
                 napi_status status = napi_get_value_nodestring_(args[0], key);
                 CHECK_NAPI_STATUS(status);
-                status = napi_get_value_nodestring_(args[1], name);
+                
+		status = napi_get_value_nodestring_(args[1], name);
                 CHECK_NAPI_STATUS(status);
 
                 status = napi_get_value_nodestring_(args[2], applitDir);
@@ -105,9 +106,11 @@ namespace agora {
 
                 status = napi_get_value_nodestring_(args[3], appid);
                 CHECK_NAPI_STATUS(status);
-                status = NodeUid::getUidFromNodeValue(args[4], uid);
+                
+		status = NodeUid::getUidFromNodeValue(args[4], uid);
                 CHECK_NAPI_STATUS(status);
-                status = napi_get_value_nodestring_(args[5], cfgPath);
+                
+		status = napi_get_value_nodestring_(args[5], cfgPath);
                 CHECK_NAPI_STATUS(status);
                 status = napi_get_value_nodestring_(args[6], streamType);
                 CHECK_NAPI_STATUS(status);
@@ -117,7 +120,7 @@ namespace agora {
                 string str_cfgPath = (string)cfgPath;
                 string str_key;
 		string str_streamType = (string)streamType;
-
+		cout << str_streamType << endl;
                 if(key == nullptr) {
                     str_key = "";
                 } else {
@@ -221,7 +224,6 @@ namespace agora {
 
                 status = napi_get_value_array_object_(args.GetIsolate(), layoutData, "regions", regions);
                 CHECK_NAPI_STATUS(status);
-
                 agora::linuxsdk::VideoMixingLayout::Region * regionList = new agora::linuxsdk::VideoMixingLayout::Region[regions->Length()];
                 for(size_t i = 0; i < regions->Length(); i++) {
                     int zOrder;

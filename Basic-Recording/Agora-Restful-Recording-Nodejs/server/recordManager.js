@@ -135,11 +135,11 @@ class RecordManager{
 start(key, appid, channel,streamType) {
         return new Promise((resolve, reject) => {
             const sid = uuidv4();
-            this.initStorage(appid, channel, sid).then(storagePath => {
-                let sdk = new AgoraRecordingSDK();
+            this.initStorage(appid, channel, sid,streamType).then(storagePath => {
+ 		let sdk = new AgoraRecordingSDK();
                 
-                let layout = {
-                }
+                let layout = {}
+console.log("************"+streamType);
                 if (streamType == "0"){
                     layout = {
                         "canvasWidth": 720,
@@ -171,9 +171,10 @@ start(key, appid, channel,streamType) {
                     streamType: streamType
                 };
                 sdk.setMixLayout(layout);
-
+console.log(layout);
+console.log("1111111111"+streamType);
                 sdk.joinChannel(key || null, channel, 0, appid, storagePath,streamType).then(() => {
-                    this.subscribeEvents(recorder);
+		    this.subscribeEvents(recorder);
                     this.recorders[sid] = recorder;
                     console.log(`recorder started ${appid} ${channel} ${sid}`)
                     resolve(recorder);
@@ -186,7 +187,8 @@ start(key, appid, channel,streamType) {
 
  subscribeEvents(recorder) {
         let { sdk, sid, appid, channel, streamType } = recorder;
-        sdk.on("error", (err, stat) => {
+console.log("***********pppppp"+ streamType);        
+	sdk.on("error", (err, stat) => {
             console.error(`sdk stopped due to err code: ${err} stat: ${stat}`);
             console.log(`stop recorder ${appid} ${channel} ${sid}`)
             //clear recorder if error received
@@ -249,6 +251,7 @@ start(key, appid, channel,streamType) {
                 default:
                     break;
             }
+		console.log("++++++++++++"+region);
             layout.regions.push(region)
             sdk.setMixLayout(layout);
             } else if (streamType == "1") {
