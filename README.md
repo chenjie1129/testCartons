@@ -96,6 +96,7 @@ Parameters:
 |appid |Y  |string |agora appid   |
 |channel |Y  |string | channel name    |
 |key     |N  |string | key if certificate is enalbed for your appid    |
+|streamType|N|string | 0 (default value)-> portrait canvas, 1-> landscape canvas|
 
 Sample Response:
 
@@ -141,6 +142,33 @@ Response Properties:
 |Name|Type|Desc|
 |:----|:----- |-----   |
 |success  |bool |operation result   |
+
+#### fetch recording url
+
+- `http://localhost:3000/recorder/v1/stop`
+
+Method:
+
+- POST
+
+Parameters:
+
+
+|Name|Mandatory|Type|Desc|
+|:----    |:---|:----- |-----   |
+|sid |Y  |string |sid when you start the recorder   |
+
+Sample Response:
+
+```
+[
+    "${ip_address}:3000/static/sid/<recorded_file_name>.mp4"
+]
+```
+
+
+
+
 
 ## Resources
 - See full API documentation in the [Document Center](https://docs.agora.io/en/)
