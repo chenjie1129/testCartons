@@ -10,6 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
+    "crc-32": "^1.2.0",
+    "cuint": "^0.2.2",
     "express": "^4.16.4",
     "pm2": "^3.3.1",
     "uuid": "^3.3.2"
